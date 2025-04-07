@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>testPage2</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .game-area {
+      flex: 1;
+      position: relative;
+      background-color: #f0f0f0;
+    }
+
+    .inventory-container {
+      width: 120px;
+      height: 100%;
+      position: relative;
+      transition: transform 0.3s ease;
+    }
+
+    .inventory {
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .inventory-slot {
+      width: 80px;
+      height: 80px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+    }
+
+    .toggle-btn {
+      position: absolute;
+      top: 50%;
+      left: -20px;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-top: 20px solid transparent;
+      border-bottom: 20px solid transparent;
+      border-left: 20px solid #6a005f;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .inventory-container.closed {
+      transform: translateX(100%);
+    }
+
+    .inventory-container.closed .toggle-btn {
+      left: -120px;
+      border-left: none;
+      border-right: 20px solid #6a005f;
+    }
+
+    .item {
+      width: 90px;
+      height: 65px;
+      position: absolute;
+      left: 500px;
+      top: 260px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    #collectible-item {
+      left: 500px;
+      top: 260px;
+    }
+
+    #invitation-item {
+      width: 94px;
+      height: 98px;
+      left: 900px;
+      top: 450px;
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .overlay.active {
+      display: flex;
+    }
+
+    .overlay img {
+      width: 50vw;
+      height: 50vh;
+      object-fit: contain;
+      cursor: pointer;
+    }
+
+    .inventory-slot img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 30px;
+      height: 30px;
+      background-color: #fff;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      font-size: 20px;
+      color: #000;
+    }
+
+    .message-box {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 20px 40px;
+      border-radius: 10px;
+      font-size: 24px;
+      z-index: 3000;
+      text-align: center;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    #zhuangyuan-item {
+      width: 236px;
+      height: 296px;
+      left: 40px;
+      top: 240px;
+    }
+
+    #zhenzhu-item {
+      width: 120px;
+      height: 100px;
+      left: 460px;
+      top: 510px;
+    }
+
+    .sound-area {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background-color: rgba(255, 0, 0, 0.2);
+      cursor: pointer;
+    }
+
+    #yingwu-item {
+      width: 170px;
+      height: 260px;
+      left: 1400px;
+      top: 320px;
+    }
+
+    .speech-bubble {
+      display: none;
+      position: absolute;
+      background-color: white;
+      border-radius: 15px;
+      padding: 10px 15px;
+      font-size: 16px;
+      color: black;
+      max-width: 200px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      animation: fadeIn 0.5s ease;
+    }
+
+    .speech-bubble::before {
+      content: '';
+      position: absolute;
+      left: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-width: 10px;
+      border-style: solid;
+      border-color: transparent white transparent transparent;
+    }
+
+    .speech-bubble.show {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-area">
+    <img src="../realPictures/空场景 (2).png" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+    <img src="../realPictures/蛐蛐罐-关新.png" alt="" class="item" id="collectible-item">
+    <img src="../realPictures/帖子-图标新.png" alt="" class="item" id="invitation-item">
+    <img src="../realPictures/状元袍-图标新.png" alt="" class="item" id="zhuangyuan-item">
+    <img src="../realPictures/珍珠盒-关新.png" alt="" class="item" id="zhenzhu-item">
+    <img src="../realPictures/鹦鹉新.png" alt="" class="item" id="yingwu-item">
+    <div class="speech-bubble" id="speech-bubble"></div>
+  </div>
+  
+  <div class="overlay" id="overlay">
+    <div class="close-btn">×</div>
+    <img src="" alt="" id="overlay-image">
+    <div class="sound-area" id="sound-area"></div>
+  </div>
+
+  <div class="message-box" id="message-box">你已穿上状元袍</div>
+
+  <div class="inventory-container">
+    <div class="toggle-btn"></div>
+    <div class="inventory">
+      <div class="inventory-slot" data-empty="true"></div>
+      <div class="inventory-slot" data-empty="true"></div>
+      <div class="inventory-slot" data-empty="true"></div>
+      <div class="inventory-slot" data-empty="true"></div>
+      <div class="inventory-slot" data-empty="true"></div>
+      <div class="inventory-slot" data-empty="true"></div>
+    </div>
+  </div>
+
+  <audio id="sound-effect" src="../Pictures/图片素材/珍珠盒音效.mp3"></audio>
+
+  <script>
+    // 游戏状态管理
+    const gameState = {
+      hasWornZhuangyuan: false,
+      zhenzhuBoxOpened: false,
+      hasShownFishEyeBubble: false
+    };
+
+    // 鹦鹉对话气泡管理
+    let bubbleTimer = null;
+    const speechBubble = document.getElementById('speech-bubble');
+    const yingwuItem = document.getElementById('yingwu-item');
+
+    // 显示对话气泡
+    function showBubble(text, duration = 3000) {
+      speechBubble.textContent = text;
+      speechBubble.style.left = (yingwuItem.offsetLeft - 130) + 'px';
+      speechBubble.style.top = (yingwuItem.offsetTop + 20) + 'px';
+      speechBubble.classList.add('show');
+
+      setTimeout(() => {
+        speechBubble.classList.remove('show');
+      }, duration);
+    }
+
+    // 开始状元袍提示循环
+    function startZhuangyuanBubble() {
+      if (!gameState.hasWornZhuangyuan) {
+        showBubble('状元郎穿新衣');
+        bubbleTimer = setTimeout(startZhuangyuanBubble, 30000);
+      }
+    }
+
+    // 页面加载完成后开始循环
+    window.addEventListener('load', startZhuangyuanBubble);
+
+    // 保留原有的背包切换逻辑
+    document.querySelector('.toggle-btn').addEventListener('click', function() {
+      document.querySelector('.inventory-container').classList.toggle('closed');
+    });
+
+    // 道具交互逻辑
+    const items = {
+      'collectible-item': {
+        src: '../realPictures/蛐蛐罐-开.png',
+        alt: 'ququguan',
+        canCollect: true
+      },
+      'invitation-item': {
+        src: '../realPictures/卷轴.png',
+        alt: 'invitation',
+        canCollect: false
+      },
+      'zhuangyuan-item': {
+        src: '../realPictures/状元袍-图标新.png',
+        alt: 'zhuangyuan',
+        canCollect: false
+      },
+      'zhenzhu-item': {
+        closed: '../realPictures/珍珠盒-关新.png',
+        opened: '../realPictures/珍珠盒-开新.png',
+        alt: 'zhenzhu',
+        canCollect: false
+      }
+    };
+
+    const overlay = document.getElementById('overlay');
+    const overlayImage = document.getElementById('overlay-image');
+    const closeBtn = document.querySelector('.close-btn');
+    const messageBox = document.getElementById('message-box');
+    const soundEffect = document.getElementById('sound-effect');
+    const soundArea = document.getElementById('sound-area');
+
+    // 为每个道具添加点击事件
+    Object.keys(items).forEach(itemId => {
+      const item = document.getElementById(itemId);
+      const itemData = items[itemId];
+
+      item.addEventListener('click', function() {
+        if (itemId === 'zhuangyuan-item') {
+          // 状元袍特殊处理
+          messageBox.style.display = 'block';
+          item.style.display = 'none';
+          gameState.hasWornZhuangyuan = true;
+          
+          // 停止状元袍提示循环
+          if (bubbleTimer) {
+            clearTimeout(bubbleTimer);
+            bubbleTimer = null;
+          }
+          
+          setTimeout(() => {
+            messageBox.style.display = 'none';
+          }, 3000);
+        } else if (itemId === 'zhenzhu-item') {
+          // 珍珠盒特殊处理
+          if (!gameState.zhenzhuBoxOpened) {
+            // 第一次点击：显示打开的图片
+            overlayImage.src = itemData.opened;
+            overlay.classList.add('active');
+            gameState.zhenzhuBoxOpened = true;
+
+            // 设置音效触发区域位置（示例位置，需要根据实际图片调整）
+            soundArea.style.left = '53%';
+            soundArea.style.top = '55%';
+          } else {
+            // 已经打开过：直接显示放大图
+            overlayImage.src = itemData.opened;
+            overlay.classList.add('active');
+          }
+        } else {
+          // 其他道具的原有逻辑
+          overlayImage.src = itemData.src;
+          overlayImage.alt = itemData.alt;
+          overlay.classList.add('active');
+
+          if (itemData.canCollect) {
+            overlay.addEventListener('click', function collectItem() {
+              overlay.classList.remove('active');
+              item.style.display = 'none';
+              
+              const emptySlot = document.querySelector('.inventory-slot[data-empty="true"]');
+              if (emptySlot) {
+                const itemInSlot = document.createElement('img');
+                itemInSlot.src = itemData.src;
+                itemInSlot.alt = itemData.alt;
+                emptySlot.appendChild(itemInSlot);
+                emptySlot.setAttribute('data-empty', 'false');
+              }
+              overlay.removeEventListener('click', collectItem);
+            }, { once: true });
+          }
+        }
+      });
+    });
+
+    // 音效触发区域点击事件
+    soundArea.addEventListener('click', function(e) {
+      e.stopPropagation(); // 阻止事件冒泡
+      soundEffect.play();
+    });
+
+    // 关闭按钮点击事件
+    closeBtn.addEventListener('click', function() {
+      overlay.classList.remove('active');
+      
+      // 检查是否需要显示鱼目混珠提示
+      if (gameState.zhenzhuBoxOpened && !gameState.hasShownFishEyeBubble) {
+        gameState.hasShownFishEyeBubble = true;
+        showBubble('鱼目混珠');
+      }
+    });
+
+    // 导出游戏状态，方便其他脚本访问
+    window.getGameState = function() {
+      return gameState;
+    };
+  </script>
+</body>
+</html>
