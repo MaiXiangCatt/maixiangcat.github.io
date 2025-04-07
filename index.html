@@ -230,12 +230,12 @@
 </head>
 <body>
   <div class="game-area">
-    <img src="../realPictures/空场景 (2).png" alt="" style="width: 100%; height: 100%; object-fit: cover;">
-    <img src="../realPictures/蛐蛐罐-关新.png" alt="" class="item" id="collectible-item">
-    <img src="../realPictures/帖子-图标新.png" alt="" class="item" id="invitation-item">
-    <img src="../realPictures/状元袍-图标新.png" alt="" class="item" id="zhuangyuan-item">
-    <img src="../realPictures/珍珠盒-关新.png" alt="" class="item" id="zhenzhu-item">
-    <img src="../realPictures/鹦鹉新.png" alt="" class="item" id="yingwu-item">
+    <img src="./realPictures/空场景 (2).png" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+    <img src="./realPictures/蛐蛐罐-关新.png" alt="" class="item" id="collectible-item">
+    <img src="./realPictures/帖子-图标新.png" alt="" class="item" id="invitation-item">
+    <img src="./realPictures/状元袍-图标新.png" alt="" class="item" id="zhuangyuan-item">
+    <img src="./realPictures/珍珠盒-关新.png" alt="" class="item" id="zhenzhu-item">
+    <img src="./realPictures/鹦鹉新.png" alt="" class="item" id="yingwu-item">
     <div class="speech-bubble" id="speech-bubble"></div>
   </div>
   
@@ -259,22 +259,19 @@
     </div>
   </div>
 
-  <audio id="sound-effect" src="../Pictures/图片素材/珍珠盒音效.mp3"></audio>
+  <audio id="sound-effect" src="./Pictures/图片素材/珍珠盒音效.mp3"></audio>
 
   <script>
-    // 游戏状态管理
     const gameState = {
       hasWornZhuangyuan: false,
       zhenzhuBoxOpened: false,
       hasShownFishEyeBubble: false
     };
 
-    // 鹦鹉对话气泡管理
     let bubbleTimer = null;
     const speechBubble = document.getElementById('speech-bubble');
     const yingwuItem = document.getElementById('yingwu-item');
 
-    // 显示对话气泡
     function showBubble(text, duration = 3000) {
       speechBubble.textContent = text;
       speechBubble.style.left = (yingwuItem.offsetLeft - 130) + 'px';
@@ -286,7 +283,6 @@
       }, duration);
     }
 
-    // 开始状元袍提示循环
     function startZhuangyuanBubble() {
       if (!gameState.hasWornZhuangyuan) {
         showBubble('状元郎穿新衣');
@@ -294,34 +290,31 @@
       }
     }
 
-    // 页面加载完成后开始循环
     window.addEventListener('load', startZhuangyuanBubble);
 
-    // 保留原有的背包切换逻辑
     document.querySelector('.toggle-btn').addEventListener('click', function() {
       document.querySelector('.inventory-container').classList.toggle('closed');
     });
-
-    // 道具交互逻辑
+    
     const items = {
       'collectible-item': {
-        src: '../realPictures/蛐蛐罐-开.png',
+        src: './realPictures/蛐蛐罐-开.png',
         alt: 'ququguan',
         canCollect: true
       },
       'invitation-item': {
-        src: '../realPictures/卷轴.png',
+        src: './realPictures/卷轴.png',
         alt: 'invitation',
         canCollect: false
       },
       'zhuangyuan-item': {
-        src: '../realPictures/状元袍-图标新.png',
+        src: './realPictures/状元袍-图标新.png',
         alt: 'zhuangyuan',
         canCollect: false
       },
       'zhenzhu-item': {
-        closed: '../realPictures/珍珠盒-关新.png',
-        opened: '../realPictures/珍珠盒-开新.png',
+        closed: './realPictures/珍珠盒-关新.png',
+        opened: './realPictures/珍珠盒-开新.png',
         alt: 'zhenzhu',
         canCollect: false
       }
@@ -334,19 +327,16 @@
     const soundEffect = document.getElementById('sound-effect');
     const soundArea = document.getElementById('sound-area');
 
-    // 为每个道具添加点击事件
     Object.keys(items).forEach(itemId => {
       const item = document.getElementById(itemId);
       const itemData = items[itemId];
 
       item.addEventListener('click', function() {
         if (itemId === 'zhuangyuan-item') {
-          // 状元袍特殊处理
           messageBox.style.display = 'block';
           item.style.display = 'none';
           gameState.hasWornZhuangyuan = true;
           
-          // 停止状元袍提示循环
           if (bubbleTimer) {
             clearTimeout(bubbleTimer);
             bubbleTimer = null;
@@ -356,23 +346,19 @@
             messageBox.style.display = 'none';
           }, 3000);
         } else if (itemId === 'zhenzhu-item') {
-          // 珍珠盒特殊处理
           if (!gameState.zhenzhuBoxOpened) {
-            // 第一次点击：显示打开的图片
             overlayImage.src = itemData.opened;
             overlay.classList.add('active');
             gameState.zhenzhuBoxOpened = true;
 
-            // 设置音效触发区域位置（示例位置，需要根据实际图片调整）
             soundArea.style.left = '53%';
             soundArea.style.top = '55%';
           } else {
-            // 已经打开过：直接显示放大图
+
             overlayImage.src = itemData.opened;
             overlay.classList.add('active');
           }
         } else {
-          // 其他道具的原有逻辑
           overlayImage.src = itemData.src;
           overlayImage.alt = itemData.alt;
           overlay.classList.add('active');
@@ -397,24 +383,22 @@
       });
     });
 
-    // 音效触发区域点击事件
     soundArea.addEventListener('click', function(e) {
-      e.stopPropagation(); // 阻止事件冒泡
+      e.stopPropagation();
       soundEffect.play();
     });
 
-    // 关闭按钮点击事件
     closeBtn.addEventListener('click', function() {
       overlay.classList.remove('active');
       
-      // 检查是否需要显示鱼目混珠提示
+
       if (gameState.zhenzhuBoxOpened && !gameState.hasShownFishEyeBubble) {
         gameState.hasShownFishEyeBubble = true;
         showBubble('鱼目混珠');
       }
     });
 
-    // 导出游戏状态，方便其他脚本访问
+
     window.getGameState = function() {
       return gameState;
     };
